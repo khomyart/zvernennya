@@ -8,23 +8,23 @@
  */
 function getListOfAppeals(&$number_of_results, $results_per_page, $filter = '')
 {
-    $query = 'SELECT * FROM `appeal` WHERE 1';
+    $query = "SELECT COUNT(*) FROM `appeal` WHERE 1";
 
-    if (is_string($filter) && (trim($filter) != '')) {
-        $query .= ' AND ( (`full_name` LIKE :filter) OR (`address` LIKE :filter) OR (`social_category` LIKE :filter) OR (`phone` LIKE :filter) OR (`appeal_text` LIKE :filter) OR (`other` LIKE :filter) )';
-        $params['filter'] = '%' . $filter . '%';
+    if (is_string($filter['search'])) {
+        $query .= ' AND ( (`full_name` LIKE :filter) OR (`address` LIKE :filter) OR (`social_category` LIKE :filter) OR (`phone` LIKE :filter) OR (`appeal_text` LIKE :filter) OR (`other` LIKE :filter) ) AND (`is_consultation_has_been_given` LIKE :consultation) AND (`is_package_needed` LIKE :package) AND (`is_done` LIKE :is_done)';
+        $params = [
+            'filter' => '%' . $filter['search'] . '%',
+            'consultation' => '%' .$filter['consultation']. '%',
+            'package' => '%' .$filter['packages']. '%',
+            'is_done' => '%' .$filter['is_done']. '%',
+            'sort_buy' => '%' .$filter['sort_by']. '%',
+        ];
     }
 
-    $appeals = getAllRows($query, $params);
+    $appeal = getRow($query, $params);
 
-    // define how many results you want per page
-
-    // find out the number of results stored in database
-    $number_of_results = count($appeals);
-
-    // determine number of total pages available
-
-    // determine which page number visitor is currently on
+    $number_of_results = $appeal['COUNT(*)'];
+     
     if (!isset($_GET['page'])) {
         $_SESSION['number_of_page_to_replace_get_request'] = 1;
         $page = 1;
@@ -33,19 +33,27 @@ function getListOfAppeals(&$number_of_results, $results_per_page, $filter = '')
         $_SESSION['number_of_page_to_replace_get_request'] = $_GET['page'];
     }
 
-    // determine the sql LIMIT starting number for the results on the displaying page
     $this_page_first_result = ($page-1)*$results_per_page;
 
-    // retrieve selected results from database and display them on page
     $final_query = "SELECT * FROM `appeal` WHERE 1";
 
-    if (is_string($filter) && (trim($filter) != '')) {
-        $final_query .= ' AND ( (`full_name` LIKE :filter) OR (`address` LIKE :filter) OR (`social_category` LIKE :filter) OR (`phone` LIKE :filter) OR (`appeal_text` LIKE :filter) OR (`other` LIKE :filter) )';
-        $params['filter'] = '%' . $filter . '%';
+    if (is_string($filter['search'])) {
+        $final_query .= ' AND ( (`full_name` LIKE :filter) OR (`address` LIKE :filter) OR (`social_category` LIKE :filter) OR (`phone` LIKE :filter) OR (`appeal_text` LIKE :filter) OR (`other` LIKE :filter) ) AND (`is_consultation_has_been_given` LIKE :consultation) AND (`is_package_needed` LIKE :package) AND (`is_done` LIKE :is_done)';
+        $params = [
+            'filter' => '%' . $filter['search'] . '%',
+            'consultation' => '%' .$filter['consultation']. '%',
+            'package' => '%' .$filter['packages']. '%',
+            'is_done' => '%' .$filter['is_done']. '%',
+            'sort_buy' => '%' .$filter['sort_by']. '%',
+        ];
     }
 
-    $final_query .= ' ORDER BY `id` DESC LIMIT ' . $this_page_first_result . ',' . $results_per_page ;
+    if ($filter['sort_by'] == '') {
+        $filter['sort_by'] = 'DESC';
+    }
 
+    $final_query .= ' ORDER BY `id` '.$filter['sort_by'].' LIMIT ' . $this_page_first_result . ',' . $results_per_page ;
+    
     return getAllRows($final_query, $params);
 }
 

@@ -4,7 +4,6 @@ include './imports.php';
 
 $searchValue = '';
 $results_per_page = 10;
-
 $feedbackContactError = [];
 
 $full_name = ''; 
@@ -16,30 +15,39 @@ $is_consultation_has_been_given = [1, 2];
 $is_package_needed = [1, 2]; 
 $other = ''; 
 
-if (isset($_REQUEST['isSearch']) && ($_REQUEST['isSearch'] == 'Y')) {
-    $searchValue = $_REQUEST['search'];
+$filter_display_values = ["",'yes','no'];
+$filter_sort_display_values = ['DESC', 'ASC'];
+
+if (isset($_GET['do_the_filtration'])) {
+    if (isset($_GET['filter'])) {
+        $_SESSION['filter'] = $_GET['filter'];
+        header('Location: appeals.php'.$current_page_for_insert_into_redirection_after_some_operations);
+    }
 }
 
+if (isset($_GET['cancel_the_filtration'])) {
+    unset($_SESSION['filter']);
+    header('Location: appeals.php'.$current_page_for_insert_into_redirection_after_some_operations);
+}
+
+$searchValue = $_SESSION['filter'];
 $appeals = getListOfAppeals($number_of_results,$results_per_page, $searchValue);
-
 $current_page_for_insert_into_redirection_after_some_operations = '?page='. $_SESSION['number_of_page_to_replace_get_request'];
-
-var_dump($_SESSION);
-
 $number_of_pages = ceil($number_of_results/$results_per_page);
 
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+$page_to_go = intval($_GET['go_to_page_number_input']);
 
-
-    // display the links to the pages
-
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+if (isset($_GET['go_to_page_number'])) {
+    if (is_int($page_to_go) && (($page_to_go > 0) &&
+    ($page_to_go <= $number_of_pages))) 
+    {
+        header('Location: appeals.php?page='.$page_to_go);
+    } else {
+        header('Location: appeals.php'.$current_page_for_insert_into_redirection_after_some_operations);
+    }
+}
 
 if(isset($_POST['appeal_create'])) {
-    //$phone = $_POST['phoneNumberNoCode'] ? $_POST['phoneCode'].$_POST['phoneNumberNoCode'] : '';
-   // $firstName = $_POST['firstName'] ?: '';
-    //$lastName = $_POST['lastName'] ?: '';
-
     $full_name = $_POST['full_name'] ?: '';
     $address = $_POST['address'] ?: '';
     $social_category = $_POST['social_category'] ?: '';
@@ -70,7 +78,6 @@ if(isset($_POST['appeal_edit_save'])) {
 
     if(editAppeal($id, $full_name, $address, $social_category, $phone, $appeal_text, $is_consultation_has_been_given, $is_package_needed, $other)) {
         header('Location: appeals.php'.$current_page_for_insert_into_redirection_after_some_operations);
-        die();
     } else {
         //$feedbackContactError = contactErrorList($phone, $firstName, $lastName);
     }
@@ -81,7 +88,6 @@ if(isset($_POST['appeal_remove'])) {
 
     if(removeAppeal($id)) {
         header('Location: appeals.php'.$current_page_for_insert_into_redirection_after_some_operations);
-        die();
     }
 }
 
@@ -90,7 +96,6 @@ if(isset($_POST['appeal_mark_as_done'])) {
 
     if(markAppealAsDone($id)) {
         header('Location: appeals.php'.$current_page_for_insert_into_redirection_after_some_operations);
-        die();
     }
 }
 
@@ -99,6 +104,7 @@ if(isset($_POST['appeal_mark_as_done'])) {
 <?php include './templates/header.php'; ?>
 <?php include './templates/navigation.php'; ?>
 <style>
+
     .done_appeal {
         background: rgba(0, 117, 0, 0.79);
     }
@@ -106,7 +112,7 @@ if(isset($_POST['appeal_mark_as_done'])) {
     .pagenation_holder {
        //margin-top: 50px;
         //margin-bottom: 50px;
-        width: 50%;
+        width: 46%;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -115,6 +121,11 @@ if(isset($_POST['appeal_mark_as_done'])) {
 
     .pagenation_holder button {
         margin:2px;
+    }
+
+    select, input {
+        border-radius: 5px; 
+        outline: none;
     }
 
 </style>
@@ -127,45 +138,170 @@ if(isset($_POST['appeal_mark_as_done'])) {
             <?php } ?>
         </div>
     <?php } ?>
+    <form action ="" method="get" id="form_for_cancel_filtration" hidden></form>
+    <form action ="" method="get" id="form_for_go_to_page_number" hidden></form>
 
     <div class="row">
         <div class="col">
             <br />
-            <form class="form-inline d-flex justify-content-between" action="appeals.php" method="get">
-                <div>
-                    <input type="hidden" name="isSearch" value="Y">
-                    <div class="form-group">
-                        <label for="search" class="sr-only">Текст для пошуку</label>
-                        <input
-                            type="text"
-                            name="search"
-                            class="form-control"
-                            id="search"
-                            placeholder="Text to search"
-                            value="<?= $searchValue ?>">
-                        <button type="submit" class="btn btn-primary" style="margin-left: 5px;">Пошук</button>
-                    </div>
-                </div>
-                <div class="pagenation_holder">
-                    <form action ="" method="get">
-                        <?php
-                            for ($page=1;$page<=$number_of_pages;$page++) {
-                                if ($_SESSION['number_of_page_to_replace_get_request'] == $page) {
-                                    echo '<button class="btn done_appeal" type="submit" name="page" value="' . $page . '">' . $page . '</button> ';
-                                } else {
-                                    echo '<button class="btn btn-primary" type="submit" name="page" value="' . $page . '">' . $page . '</button> ';
-                                }
+            <p>
+            <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                Фільтр
+            </button>
+            </p>
+            <div class="collapse" id="collapseExample">
+                <div class="card card-body">
+                    <form class="form-inline d-flex justify-content-between" action="appeals.php" method="get">
+                        <div class="d-flex justify-content-between w-100 pb-3 flex-wrap">
+                            <div class="d-flex align-items-center p-3">
+                                <input type="hidden" name="isSearch" value="Y">
+                                <div class="form-group">
+                                    <label for="search" class="sr-only">Текст для пошуку</label>
+                                    <input
+                                        type="text"
+                                        name="filter[search]"
+                                        class="form-control"
+                                        id="search"
+                                        placeholder="Ключове слово"
+                                        value="<?= $searchValue['search'] ?>">
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center p-3">
+                                <span>Консультація надана:&nbsp</span>
+                                <select name='filter[consultation]'>
                                 
-                            }
-                        ?>
+                                    <?php
+                                    foreach($filter_display_values as $result) {
+                                        if ($result == $_SESSION['filter']['consultation']) {
+                                    ?>
+                                            <option selected
+                                                value="<?= $result ?>">
+                                                <?php if ($result == '') {echo 'Всі';} elseif ($result == 'yes') {echo 'Так';} elseif ($result == 'no') {echo 'Ні';}?>
+                                            </option>
+                                    <?php
+                                        } else {
+                                    ?>
+                                        <option value="<?= $result ?>">
+                                            <?php if ($result == '') {echo 'Всі';} elseif ($result == 'yes') {echo 'Так';} elseif ($result == 'no') {echo 'Ні';}?>
+                                        </option>
+                                    <?php
+                                        }
+                                    }
+                                    ?>
+
+                                </select>
+                            </div>
+                            <div class="d-flex align-items-center p-3">
+                                <span>Гуманітарна допомога потрібна:&nbsp</span>
+                                <select name='filter[packages]'>
+
+                                    <?php
+                                    foreach($filter_display_values as $result) {
+                                        if ($result == $_SESSION['filter']['packages']) {
+                                    ?>
+                                            <option selected
+                                                value="<?= $result ?>">
+                                                <?php if ($result == '') {echo 'Всі';} elseif ($result == 'yes') {echo 'Так';} elseif ($result == 'no') {echo 'Ні';}?>
+                                            </option>
+                                    <?php
+                                        } else {
+                                    ?>
+                                        <option value="<?= $result ?>">
+                                            <?php if ($result == '') {echo 'Всі';} elseif ($result == 'yes') {echo 'Так';} elseif ($result == 'no') {echo 'Ні';}?>
+                                        </option>
+                                    <?php
+                                        }
+                                    }
+                                    ?>
+
+                                </select>
+                            </div>
+                            <div class="d-flex align-items-center p-3">
+                                <span>Виконання підтверджене:&nbsp</span>
+                                <select name='filter[is_done]'>
+
+                                    <?php
+                                    foreach($filter_display_values as $result) {
+                                        if ($result == $_SESSION['filter']['is_done']) {
+                                    ?>
+                                            <option selected
+                                                value="<?= $result ?>">
+                                                <?php if ($result == '') {echo 'Всі';} elseif ($result == 'yes') {echo 'Так';} elseif ($result == 'no') {echo 'Ні';}?>
+                                            </option>
+                                    <?php
+                                        } else {
+                                    ?>
+                                        <option value="<?= $result ?>">
+                                            <?php if ($result == '') {echo 'Всі';} elseif ($result == 'yes') {echo 'Так';} elseif ($result == 'no') {echo 'Ні';}?>
+                                        </option>
+                                    <?php
+                                        }
+                                    }
+                                    ?>
+
+                                </select>
+                            </div>
+                            <div class="d-flex align-items-center p-2">
+                                    <span>Сортувати:&nbsp</span>
+                                    <select name='filter[sort_by]'>
+                                    <?php
+                                    foreach($filter_sort_display_values as $result) {
+                                        if ($result == $_SESSION['filter']['sort_by']) {
+                                    ?>
+                                            <option selected
+                                                    value="<?= $result ?>">
+                                                    <?php if ($result == 'ASC') {echo 'Від старішого до новішого';} else {echo 'Від новішого до старішого';}?>
+                                            </option>
+                                    <?php
+                                        } else {
+                                    ?>
+                                        <option value="<?= $result ?>">
+                                            <?php if ($result == 'ASC') {echo 'Від старішого до новішого';} else {echo 'Від новішого до старішого';}?>
+                                        </option>
+                                    <?php
+                                        }
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                        </div>
+                        <hr class="w-100 h-10">
+                        <div class="d-flex justify-content-center w-100 p-2">
+                            <button type="submit" class="btn btn-primary" form="form_for_cancel_filtration" name="cancel_the_filtration" value="find_appeals" style="margin-left: 10px;">Скинути фільтри</button>
+                            <button type="submit" class="btn btn-primary" name="do_the_filtration" value="find_appeals" style="margin-left: 10px;">Застосувати фільтр</button>
+                        </div>
                     </form>
                 </div>
-                <div class="d-flex justify-content-center">
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-                        Додати звернення
-                    </button>
-                </div>
-            </form>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-end">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+                    Додати звернення
+                </button>
+                <form class="pagenation_holder" action="" methid="get" style="padding: 0px; margin: 0px;"> 
+                    <div>
+                        <?php if(($_SESSION['number_of_page_to_replace_get_request']-1) != 0) { ?>
+                            <button class="btn btn-primary" type="submit" name="page" value="<?= $_SESSION['number_of_page_to_replace_get_request']-1 ?>"><<</button>
+                        <?php } ?>
+                        
+                        <?php if(($_SESSION['number_of_page_to_replace_get_request']) != $number_of_pages) { ?>
+                            <button class="btn btn-primary" type="submit" name="page" value="<?= $_SESSION['number_of_page_to_replace_get_request']+1 ?>">>></button>
+                        <?php } ?>
+                    </div>
+                    <div class='ml-2'>
+                        Сторінка: <?= $_SESSION['number_of_page_to_replace_get_request'] ?> із <?= $number_of_pages ?>
+                    </div>
+                    <input
+                                        type="text"
+                                        name="go_to_page_number_input"
+                                        class="form-control ml-2"
+                                        style = "width: 50px;"
+                                        form="form_for_go_to_page_number"
+                                        placeholder="№"
+                                        value="">
+                    <button class="btn btn-primary ml-2" type="submit" form="form_for_go_to_page_number" name="go_to_page_number" value="go_to_page_number"> Перейти на сторінку </button>
+                </form> 
+            </div>
             <div class="modal fade"
                  id="exampleModal"
                  tabindex="-1"
@@ -445,13 +581,15 @@ if(isset($_POST['appeal_mark_as_done'])) {
                                             aria-expanded="false">
                                     </button>
                                     <div class="dropdown-menu" style="margin-left:-114px" aria-labelledby="dropdownMenuButton">
-                                    <button class="dropdown-item"
+                                        <?php if ($appealData['is_done'] === 'no') { ?>
+                                            <button class="dropdown-item"
                                                 type="submit"
                                                 name="appeal_mark_as_done"
                                                 value="<?= $appealData['id'] ?>"
-                                        >
-                                            Відмітити виконаним
-                                        </button>
+                                            >
+                                                Відмітити виконаним
+                                            </button>
+                                        <?php } ?>
                                         <button class="dropdown-item"
                                                 type="submit"
                                                 name="appealEditModeEnable"
