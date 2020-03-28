@@ -10,7 +10,9 @@
 
     <title>Реєстрація звернень</title>
 </head>
+
 <style>
+
     .table td, .table th {
         vertical-align: middle;
         text-align: center;

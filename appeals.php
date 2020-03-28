@@ -76,7 +76,11 @@ if(isset($_POST['appeal_edit_save'])) {
     $is_package_needed = $_POST['is_package_needed_edit'];
     $other = $_POST['other_edit'];
 
-    if(editAppeal($id, $full_name, $address, $social_category, $phone, $appeal_text, $is_consultation_has_been_given, $is_package_needed, $other)) {
+    if(editAppeal($id, $full_name,
+        $address, $social_category,
+        $phone, $appeal_text,
+        $is_consultation_has_been_given,
+        $is_package_needed, $other)) {
         header('Location: appeals.php'.$current_page_for_insert_into_redirection_after_some_operations);
     } else {
         //$feedbackContactError = contactErrorList($phone, $firstName, $lastName);
@@ -103,8 +107,8 @@ if(isset($_POST['appeal_mark_as_done'])) {
 
 <?php include './templates/header.php'; ?>
 <?php include './templates/navigation.php'; ?>
-<style>
 
+<style>
     .done_appeal {
         background: rgba(0, 117, 0, 0.79);
     }
@@ -129,6 +133,7 @@ if(isset($_POST['appeal_mark_as_done'])) {
     }
 
 </style>
+
 <div class="container-fluid">
     <?php
     if($feedbackContactError) { ?>
@@ -145,7 +150,8 @@ if(isset($_POST['appeal_mark_as_done'])) {
         <div class="col">
             <br />
             <p>
-            <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+            <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample"
+                    aria-expanded="false" aria-controls="collapseExample">
                 Фільтр
             </button>
             </p>
@@ -176,13 +182,15 @@ if(isset($_POST['appeal_mark_as_done'])) {
                                     ?>
                                             <option selected
                                                 value="<?= $result ?>">
-                                                <?php if ($result == '') {echo 'Всі';} elseif ($result == 'yes') {echo 'Так';} elseif ($result == 'no') {echo 'Ні';}?>
+                                                <?php if ($result == '') {echo 'Всі';} elseif ($result == 'yes')
+                                                {echo 'Так';} elseif ($result == 'no') {echo 'Ні';}?>
                                             </option>
                                     <?php
                                         } else {
                                     ?>
                                         <option value="<?= $result ?>">
-                                            <?php if ($result == '') {echo 'Всі';} elseif ($result == 'yes') {echo 'Так';} elseif ($result == 'no') {echo 'Ні';}?>
+                                            <?php if ($result == '') {echo 'Всі';} elseif ($result == 'yes')
+                                            {echo 'Так';} elseif ($result == 'no') {echo 'Ні';}?>
                                         </option>
                                     <?php
                                         }
@@ -201,13 +209,15 @@ if(isset($_POST['appeal_mark_as_done'])) {
                                     ?>
                                             <option selected
                                                 value="<?= $result ?>">
-                                                <?php if ($result == '') {echo 'Всі';} elseif ($result == 'yes') {echo 'Так';} elseif ($result == 'no') {echo 'Ні';}?>
+                                                <?php if ($result == '') {echo 'Всі';} elseif ($result == 'yes')
+                                                {echo 'Так';} elseif ($result == 'no') {echo 'Ні';}?>
                                             </option>
                                     <?php
                                         } else {
                                     ?>
                                         <option value="<?= $result ?>">
-                                            <?php if ($result == '') {echo 'Всі';} elseif ($result == 'yes') {echo 'Так';} elseif ($result == 'no') {echo 'Ні';}?>
+                                            <?php if ($result == '') {echo 'Всі';} elseif ($result == 'yes')
+                                            {echo 'Так';} elseif ($result == 'no') {echo 'Ні';}?>
                                         </option>
                                     <?php
                                         }
@@ -226,13 +236,15 @@ if(isset($_POST['appeal_mark_as_done'])) {
                                     ?>
                                             <option selected
                                                 value="<?= $result ?>">
-                                                <?php if ($result == '') {echo 'Всі';} elseif ($result == 'yes') {echo 'Так';} elseif ($result == 'no') {echo 'Ні';}?>
+                                                <?php if ($result == '') {echo 'Всі';} elseif ($result == 'yes')
+                                                {echo 'Так';} elseif ($result == 'no') {echo 'Ні';}?>
                                             </option>
                                     <?php
                                         } else {
                                     ?>
                                         <option value="<?= $result ?>">
-                                            <?php if ($result == '') {echo 'Всі';} elseif ($result == 'yes') {echo 'Так';} elseif ($result == 'no') {echo 'Ні';}?>
+                                            <?php if ($result == '') {echo 'Всі';} elseif ($result == 'yes')
+                                            {echo 'Так';} elseif ($result == 'no') {echo 'Ні';}?>
                                         </option>
                                     <?php
                                         }
@@ -250,13 +262,15 @@ if(isset($_POST['appeal_mark_as_done'])) {
                                     ?>
                                             <option selected
                                                     value="<?= $result ?>">
-                                                    <?php if ($result == 'ASC') {echo 'Від старішого до новішого';} else {echo 'Від новішого до старішого';}?>
+                                                    <?php if ($result == 'ASC') {echo 'Від старішого до новішого';} else {
+                                                        echo 'Від новішого до старішого';}?>
                                             </option>
                                     <?php
                                         } else {
                                     ?>
                                         <option value="<?= $result ?>">
-                                            <?php if ($result == 'ASC') {echo 'Від старішого до новішого';} else {echo 'Від новішого до старішого';}?>
+                                            <?php if ($result == 'ASC') {echo 'Від старішого до новішого';} else {
+                                                echo 'Від новішого до старішого';}?>
                                         </option>
                                     <?php
                                         }
@@ -267,8 +281,8 @@ if(isset($_POST['appeal_mark_as_done'])) {
                         </div>
                         <hr class="w-100 h-10">
                         <div class="d-flex justify-content-center w-100 p-2">
-                            <button type="submit" class="btn btn-primary" form="form_for_cancel_filtration" name="cancel_the_filtration" value="find_appeals" style="margin-left: 10px;">Скинути фільтри</button>
                             <button type="submit" class="btn btn-primary" name="do_the_filtration" value="find_appeals" style="margin-left: 10px;">Застосувати фільтр</button>
+                            <button type="submit" class="btn btn-primary" form="form_for_cancel_filtration" name="cancel_the_filtration" value="find_appeals" style="margin-left: 10px;">Скинути фільтри</button>
                         </div>
                     </form>
                 </div>
@@ -278,28 +292,31 @@ if(isset($_POST['appeal_mark_as_done'])) {
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
                     Додати звернення
                 </button>
-                <form class="pagenation_holder" action="" methid="get" style="padding: 0px; margin: 0px;"> 
+                <form class="pagenation_holder" action="" method="get" style="padding: 0px; margin: 0px;">
                     <div>
                         <?php if(($_SESSION['number_of_page_to_replace_get_request']-1) != 0) { ?>
-                            <button class="btn btn-primary" type="submit" name="page" value="<?= $_SESSION['number_of_page_to_replace_get_request']-1 ?>"><<</button>
+                            <button class="btn btn-primary" type="submit" name="page"
+                                    value="<?= $_SESSION['number_of_page_to_replace_get_request']-1 ?>"><</button>
                         <?php } ?>
                         
                         <?php if(($_SESSION['number_of_page_to_replace_get_request']) != $number_of_pages) { ?>
-                            <button class="btn btn-primary" type="submit" name="page" value="<?= $_SESSION['number_of_page_to_replace_get_request']+1 ?>">>></button>
+                            <button class="btn btn-primary" type="submit" name="page"
+                                    value="<?= $_SESSION['number_of_page_to_replace_get_request']+1 ?>">></button>
                         <?php } ?>
                     </div>
                     <div class='ml-2'>
                         Сторінка: <?= $_SESSION['number_of_page_to_replace_get_request'] ?> із <?= $number_of_pages ?>
                     </div>
                     <input
-                                        type="text"
-                                        name="go_to_page_number_input"
-                                        class="form-control ml-2"
-                                        style = "width: 50px;"
-                                        form="form_for_go_to_page_number"
-                                        placeholder="№"
-                                        value="">
-                    <button class="btn btn-primary ml-2" type="submit" form="form_for_go_to_page_number" name="go_to_page_number" value="go_to_page_number"> Перейти на сторінку </button>
+                        type="text"
+                        name="go_to_page_number_input"
+                        class="form-control ml-2"
+                        style = "width: 50px;"
+                        form="form_for_go_to_page_number"
+                        placeholder="№"
+                        value="">
+                    <button class="btn btn-primary ml-2" type="submit" form="form_for_go_to_page_number"
+                            name="go_to_page_number" value="go_to_page_number"> Перейти на сторінку </button>
                 </form> 
             </div>
             <div class="modal fade"
@@ -321,11 +338,14 @@ if(isset($_POST['appeal_mark_as_done'])) {
                             <div class="modal-body">
                                 <div class="form-group">
                                     <label>Повне ім'я</label>
-                                    <input type="text" class="form-control"
+                                    <input id="full_name_field" type="text" class="form-control"
                                            name="full_name"
                                            value="<?= $full_name ?>"
                                     >
-                                    
+                                    <div id="check_full_name_result" ></div>
+                                    <div id="check_full_name" style="margin-top: 10px;" class="btn btn-primary">
+                                        Перевірити
+                                    </div>
                                 </div>
                                 <div class="form-group">
                                     <label>Адреса</label>
@@ -581,6 +601,11 @@ if(isset($_POST['appeal_mark_as_done'])) {
                                             aria-expanded="false">
                                     </button>
                                     <div class="dropdown-menu" style="margin-left:-114px" aria-labelledby="dropdownMenuButton">
+                                        <a class="dropdown-item"  target="_blank"
+                                                href="view.php?id=<?= $appealData['id'] ?>"
+                                        >
+                                            Переглянути
+                                        </a>
                                         <?php if ($appealData['is_done'] === 'no') { ?>
                                             <button class="dropdown-item"
                                                 type="submit"
@@ -618,3 +643,10 @@ if(isset($_POST['appeal_mark_as_done'])) {
 </div>
 
 <?php include './templates/footer.php'; ?>
+
+<script type="application/javascript" src="https://code.jquery.com/jquery-3.4.1.slim.js"
+        integrity="sha256-BTlTdQO9/fascB1drekrDVkaKd9PkwBymMlHOiG+qLI="
+        crossorigin="anonymous">
+</script>
+<script type="application/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script type="application/javascript" src="lib/js/check_full_name.js"></script>

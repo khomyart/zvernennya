@@ -63,9 +63,11 @@ function getListOfAppeals(&$number_of_results, $results_per_page, $filter = '')
  * @param $filter
  * @return array
  */
-function getJoinListOfContacts($filter = '')
+function getJoinListOfAppeals($filter = '')
 {
-    $query = 'SELECT c.id, c.phone, c.first_name, c.last_name, u.email, u.nickname FROM `contact` AS c LEFT JOIN `user` AS u ON c.user_id = u.id WHERE 1';
+    $query = 'SELECT a.user_id, a.full_name, a.address, a.social_category, a.phone, a.appeal_text, 
+                                    a.is_consultation_has_been_given, a.is_package_needed, a.other, a.when_created FROM 
+`appeal` AS a LEFT JOIN `users` AS u ON a.user_id = u.id WHERE 1';
 
     if (is_string($filter) && (trim($filter) != '')) {
         $query .= ' AND ( (c.first_name LIKE :filter) OR (c.last_name LIKE :filter) OR (c.phone LIKE :filter) OR (c.id LIKE :filter) OR (u.email LIKE :filter) OR (u.nickname LIKE :filter) )';
@@ -117,17 +119,26 @@ function contactErrorList($phone, $firstName, $lastName)
 }
 
 /**
- * Creates a new contact
+ * Creates a new appeal
  *
- * @param $firstName
- * @param $lastName
+ * @param $userId
+ * @param $full_name
+ * @param $address
+ * @param $social_category
  * @param $phone
+ * @param $appeal_text
+ * @param $is_consultation_has_been_given
+ * @param $is_package_needed
+ * @param $other
  * @return bool
  */
-function addAppeal($userId, $full_name, $address, $social_category, $phone, $appeal_text, $is_consultation_has_been_given, $is_package_needed, $other)
+function addAppeal($userId, $full_name, $address, $social_category, $phone, $appeal_text,
+                   $is_consultation_has_been_given, $is_package_needed, $other)
 {
-    $query = 'INSERT INTO `appeal`(`user_id`, `full_name`, `address`, `social_category`, `phone`, `appeal_text`, `is_consultation_has_been_given`, `is_package_needed`, `other`) 
-                VALUES (:userId, :full_name, :address, :social_category, :phone, :appeal_text, :is_consultation_has_been_given, :is_package_needed, :other);';
+    $query = 'INSERT INTO `appeal`(`user_id`, `full_name`, `address`, `social_category`, `phone`, `appeal_text`, 
+                                    `is_consultation_has_been_given`, `is_package_needed`, `other`, `when_created`) 
+                VALUES (:userId, :full_name, :address, :social_category, :phone, :appeal_text, 
+                                    :is_consultation_has_been_given, :is_package_needed, :other, :when_created);';
     $params = [
         'userId' => $userId,
         'full_name' => $full_name,
@@ -138,6 +149,7 @@ function addAppeal($userId, $full_name, $address, $social_category, $phone, $app
         'is_consultation_has_been_given' => $is_consultation_has_been_given,
         'is_package_needed' => $is_package_needed,
         'other' => $other,
+        'when_created' => date('Y-m-d H:i:s'),
         //'is_done' => $is_done,
     ];
 
@@ -157,9 +169,12 @@ function addAppeal($userId, $full_name, $address, $social_category, $phone, $app
  * @param $lastName
  * @return bool
  */
-function editAppeal($id, $full_name, $address, $social_category, $phone, $appeal_text, $is_consultation_has_been_given, $is_package_needed, $other)
+function editAppeal($id, $full_name, $address, $social_category, $phone, $appeal_text,
+                    $is_consultation_has_been_given, $is_package_needed, $other)
 {
-    $query = 'UPDATE `appeal` SET `full_name` = :full_name, `address` = :address, `social_category` = :social_category, `phone` = :phone, `appeal_text` = :appeal_text, `is_consultation_has_been_given` = :is_consultation_has_been_given, `is_package_needed` = :is_package_needed, `other` = :other WHERE `id`= :id;';
+    $query = 'UPDATE `appeal` SET `full_name` = :full_name, `address` = :address, `social_category` = :social_category, 
+                `phone` = :phone, `appeal_text` = :appeal_text, `is_consultation_has_been_given` = :is_consultation_has_been_given, 
+                    `is_package_needed` = :is_package_needed, `other` = :other WHERE `id`= :id;';
 
     $params = [
         'id' => $id,
